@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+sqlalchemy
+pydantic
+python-multipart
+pytesseract
+opencv-python
+pillow
+scikit-learn
+xgboost
+numpy
+pydantic-settings
+pytest
+httpx
+pytest-asyncio
