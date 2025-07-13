@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAlerts } from '@/hooks/useAlerts';
+import BackendStatus from './BackendStatus';
 
 const Navbar = () => {
   const pathname = usePathname();
@@ -85,8 +86,9 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Desktop Notification Bell */}
-          <div className="hidden sm:flex items-center">
+          {/* Desktop Notification Bell and Backend Status */}
+          <div className="hidden sm:flex items-center space-x-4">
+            <BackendStatus />
             <Link href="/alerts" className="relative p-2 rounded-lg text-white hover:text-yellow-400 hover:bg-blue-500 transition-colors duration-200">
               <Bell className="h-6 w-6" />
               {criticalAlertsCount > 0 && (
