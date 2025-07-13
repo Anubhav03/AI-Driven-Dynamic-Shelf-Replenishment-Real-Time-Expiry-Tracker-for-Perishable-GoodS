@@ -38,7 +38,7 @@ def scan_expiry(product_id: int, file: UploadFile = File(...), db: Session = Dep
     # Save uploaded file
     upload_dir = "images/expiry_samples/"
     os.makedirs(upload_dir, exist_ok=True)
-    file_path = os.path.join(upload_dir, file.filename)
+    file_path = os.path.join(upload_dir, file.filename or "unknown.jpg")
     try:
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
