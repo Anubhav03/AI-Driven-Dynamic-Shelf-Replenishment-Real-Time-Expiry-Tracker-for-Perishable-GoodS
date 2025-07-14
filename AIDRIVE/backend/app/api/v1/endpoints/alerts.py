@@ -8,7 +8,7 @@ from app.core.logger import logger
 
 router = APIRouter()
 
-@router.get("/api/v1/alerts", status_code=status.HTTP_200_OK)
+@router.get("/", status_code=status.HTTP_200_OK)
 def get_alerts(db: Session = Depends(get_db)):
     try:
         alerts = get_expiry_alerts(db)

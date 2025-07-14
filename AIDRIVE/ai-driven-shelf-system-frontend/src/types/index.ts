@@ -39,6 +39,22 @@ export interface ExpiryCreate {
   expiry_date: string;
 }
 
+// Manual Expiry types
+export interface ManualExpiry {
+  id: number;
+  product_id: number;
+  expiry_date: string;
+  quantity: number;
+  created_at: string;
+  product?: Product;
+}
+
+export interface ManualExpiryCreate {
+  product_id: number;
+  expiry_date: string;
+  quantity?: number;
+}
+
 // Alert types
 export interface Alert {
   type: 'expiry' | 'low_stock';

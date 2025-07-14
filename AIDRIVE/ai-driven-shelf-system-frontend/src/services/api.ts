@@ -42,6 +42,7 @@ export const productsAPI = {
 export const expiryAPI = {
   getAll: () => api.get('/expiry/'),
   addManual: (data: any) => api.post('/expiry/manual', data),
+  getManual: () => api.get('/expiry/manual/'),
   scanImage: (productId: number, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
