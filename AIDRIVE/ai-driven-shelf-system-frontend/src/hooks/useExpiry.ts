@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { expiryAPI } from '@/services/api';
-import { Expiry, ExpiryCreate } from '@/types';
+import { Expiry, ExpiryCreate, ManualExpiry, ManualExpiryCreate } from '@/types';
 
 export const useExpiry = () => {
   const [expiryData, setExpiryData] = useState<Expiry[]>([]);
@@ -20,11 +20,13 @@ export const useExpiry = () => {
     }
   }, []);
 
-  const addManualExpiry = useCallback(async (expiryData: ExpiryCreate) => {
+  const addManualExpiry = useCallback(async (expiryData: ManualExpiryCreate) => {
     setLoading(true);
     setError(null);
     try {
       const response = await expiryAPI.addManual(expiryData);
+      // Note: The response will be a ManualExpiry object, but we'll add it to the expiry list
+      // You might want to create a separate state for manual expiry data
       setExpiryData(prev => [...prev, response.data]);
       return response.data;
     } catch (err: any) {

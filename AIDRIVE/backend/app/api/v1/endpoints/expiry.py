@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.db.schemas.expiry import Expiry, ExpiryCreate
+from app.db.schemas.manual_expiry import ManualExpiry, ManualExpiryCreate
 from app.db.models.expiry import Expiry as ExpiryModel
+from app.db.models.manual_expiry import ManualExpiry as ManualExpiryModel
 from app.db.models.product import Product as ProductModel
 from app.dependencies import get_db
 from app.services.ocr_engine import extract_expiry_from_image
@@ -13,8 +15,8 @@ from datetime import datetime
 
 router = APIRouter()
 
-@router.post("/manual", response_model=Expiry, status_code=status.HTTP_201_CREATED)
-def add_expiry_manual(expiry: ExpiryCreate, db: Session = Depends(get_db)):
+@router.post("/manual", response_model=ManualExpiry, status_code=status.HTTP_201_CREATED)
+def add_expiry_manual(expiry: ManualExpiryCreate, db: Session = Depends(get_db)):
     # Check product exists
     if not db.query(ProductModel).filter(ProductModel.id == expiry.product_id).first():
         logger.error(f"Product not found for expiry: {expiry.product_id}")
@@ -23,7 +25,7 @@ def add_expiry_manual(expiry: ExpiryCreate, db: Session = Depends(get_db)):
     if expiry.expiry_date < datetime.now().date():
         logger.warning(f"Attempt to add past expiry date: {expiry.expiry_date}")
         raise HTTPException(status_code=400, detail="Expiry date cannot be in the past.")
-    db_expiry = ExpiryModel(**expiry.dict())
+    db_expiry = ManualExpiryModel(**expiry.dict())
     db.add(db_expiry)
     db.commit()
     db.refresh(db_expiry)
@@ -58,3 +60,7 @@ def scan_expiry(product_id: int, file: UploadFile = File(...), db: Session = Dep
 @router.get("/", response_model=List[Expiry])
 def list_expiry(db: Session = Depends(get_db)):
     return db.query(ExpiryModel).all()
+
+@router.get("/manual/", response_model=List[ManualExpiry])
+def list_manual_expiry(db: Session = Depends(get_db)):
+    return db.query(ManualExpiryModel).all()

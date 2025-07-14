@@ -7,11 +7,12 @@ import { z } from 'zod';
 import { Calendar, Package, Save, AlertCircle } from 'lucide-react';
 import { useExpiry } from '@/hooks/useExpiry';
 import { useProducts } from '@/hooks/useProducts';
-import { ExpiryCreate } from '@/types';
+import { ManualExpiryCreate } from '@/types';
 
 const expirySchema = z.object({
   product_id: z.number().min(1, 'Please select a product'),
   expiry_date: z.string().min(1, 'Expiry date is required'),
+  quantity: z.number().min(1, 'Quantity must be at least 1').default(1),
 });
 
 type ExpiryFormData = z.infer<typeof expirySchema>;
@@ -31,6 +32,9 @@ const ManualExpiryForm = () => {
     formState: { errors },
   } = useForm<ExpiryFormData>({
     resolver: zodResolver(expirySchema),
+    defaultValues: {
+      quantity: 1,
+    },
   });
 
   const onSubmit = async (data: ExpiryFormData) => {
@@ -39,9 +43,10 @@ const ManualExpiryForm = () => {
     setSubmitSuccess(false);
 
     try {
-      const expiryData: ExpiryCreate = {
+      const expiryData: ManualExpiryCreate = {
         product_id: data.product_id,
         expiry_date: data.expiry_date,
+        quantity: data.quantity,
       };
 
       await addManualExpiry(expiryData);
@@ -138,6 +143,26 @@ const ManualExpiryForm = () => {
           )}
         </div>
 
+        {/* Quantity */}
+        <div>
+          <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+            Quantity
+          </label>
+          <input
+            type="number"
+            id="quantity"
+            {...register('quantity', { valueAsNumber: true })}
+            className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              errors.quantity ? 'border-red-300' : 'border-gray-300'
+            }`}
+            min="1"
+            placeholder="1"
+          />
+          {errors.quantity && (
+            <p className="mt-1 text-sm text-red-600">{errors.quantity.message}</p>
+          )}
+        </div>
+
         {/* Form Actions */}
         <div className="flex space-x-4 pt-4">
           <button
@@ -174,6 +199,7 @@ const ManualExpiryForm = () => {
         <ul className="text-sm text-gray-600 space-y-1">
           <li>• Select a product from the dropdown list</li>
           <li>• Choose the expiry date (must be in the future)</li>
+          <li>• Enter the quantity of items expiring on that date</li>
           <li>• Click "Add Expiry Data" to save the information</li>
           <li>• The system will automatically generate alerts for expiring products</li>
         </ul>

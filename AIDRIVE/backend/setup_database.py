@@ -1,83 +1,62 @@
 #!/usr/bin/env python3
 """
-Database Setup Script for ShelfAI Backend
-This script helps you connect the backend to MySQL database
+Complete Database Setup Script for ShelfAI Backend
+This script sets up the database, creates tables, and populates sample data
 """
 
 import os
 import sys
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import OperationalError
+import subprocess
 
-# Add the app directory to Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from app.core.config import settings
-from app.db.base import Base
-from app.db.database import engine
-
-def test_mysql_connection():
-    """Test MySQL connection"""
+def run_command(command, description):
+    """Run a command and handle errors"""
+    print(f"\n🔄 {description}...")
     try:
-        # Test connection
-        with engine.connect() as connection:
-            result = connection.execute(text("SELECT 1"))
-            print("✅ MySQL connection successful!")
+        result = subprocess.run(command, shell=True, capture_output=True, text=True)
+        if result.returncode == 0:
+            print(f"✅ {description} completed successfully!")
+            if result.stdout:
+                print(result.stdout)
             return True
-    except OperationalError as e:
-        print(f"❌ MySQL connection failed: {e}")
-        return False
+        else:
+            print(f"❌ {description} failed!")
+            if result.stderr:
+                print(result.stderr)
+            return False
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"❌ Error running {description}: {e}")
         return False
-
-def create_tables():
-    """Create all database tables"""
-    try:
-        print("Creating database tables...")
-        Base.metadata.create_all(bind=engine)
-        print("✅ Database tables created successfully!")
-        return True
-    except Exception as e:
-        print(f"❌ Failed to create tables: {e}")
-        return False
-
-def check_database_configuration():
-    """Check MySQL database configuration"""
-    print(f"📊 MySQL Database Configuration:")
-    print(f"   Host: {settings.MYSQL_HOST}")
-    print(f"   Port: {settings.MYSQL_PORT}")
-    print(f"   Database: {settings.MYSQL_DATABASE}")
-    print(f"   User: {settings.MYSQL_USER}")
-    print(f"   URL: {settings.get_database_url}")
 
 def main():
     """Main setup function"""
-    print("🚀 ShelfAI MySQL Database Setup")
-    print("=" * 40)
+    print("🚀 Complete Database Setup for ShelfAI")
+    print("=" * 50)
     
-    # Check configuration
-    check_database_configuration()
-    print()
+    # Step 1: Install dependencies
+    print("\n📦 Step 1: Installing dependencies...")
+    if not run_command("pip install -r requirements.txt", "Installing Python dependencies"):
+        print("⚠️ Some dependencies may not be installed. Continuing...")
     
-    # Test MySQL connection
-    if not test_mysql_connection():
-        print("\n🔧 Troubleshooting MySQL Connection:")
-        print("1. Make sure MySQL server is running")
-        print("2. Check your MySQL credentials in .env file")
-        print("3. Ensure the database 'shelf_management' exists")
-        print("4. Run the MySQL scripts we created earlier")
+    # Step 2: Test database connection
+    print("\n🔌 Step 2: Testing database connection...")
+    if not run_command("python test_database.py", "Testing database connection"):
+        print("❌ Database connection failed. Please check MySQL configuration.")
         return False
     
-    print("\n📝 Creating tables...")
-    if create_tables():
-        print("\n✅ Database setup completed successfully!")
-        print("\n🎯 Next steps:")
-        print("1. Start the backend: uvicorn app.main:app --reload")
-        print("2. Test the API: http://localhost:8000/docs")
-        return True
-    else:
+    # Step 3: Populate sample data
+    print("\n📊 Step 3: Populating sample data...")
+    if not run_command("python sample_data_script.py", "Populating sample data"):
+        print("❌ Sample data population failed.")
         return False
+    
+    print("\n🎉 Database setup completed successfully!")
+    print("\n📋 Next steps:")
+    print("1. Start the backend: uvicorn app.main:app --reload")
+    print("2. Test the API: http://localhost:8000/docs")
+    print("3. Check products: http://localhost:8000/api/v1/products/")
+    print("4. Check alerts: http://localhost:8000/api/v1/alerts/")
+    
+    return True
 
 if __name__ == "__main__":
     success = main()
